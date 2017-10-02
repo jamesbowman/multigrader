@@ -1,7 +1,7 @@
 import os
 import sys
 
-import Image
+from PIL import Image
 import numpy as np
 
 # Functions to convert images <-> 24-bit arrays
@@ -31,6 +31,7 @@ if __name__ == '__main__':
         grade.paste(toimage(ramps), (0, rows * h))
 
         for i,fn in enumerate(sources):
+            print "%d/%d %s" % (i + 1, len(sources), fn)
             pic = Image.open(fn)
             pic.draft("RGB", (1024, 1024))
             pic = pic.resize((1024, h), Image.NEAREST)
@@ -38,13 +39,14 @@ if __name__ == '__main__':
             y = h * (i / 4)
             grade.paste(pic, (x, y))
         grade.save("grade.png")
-        print "Now adjust grade.png then re-run"
+        print "Now edit grade.png then re-run multigrader.py"
     else:
         print "Applying grade.png to all images"
         grade = Image.open("grade.png")
         h = grade.size[1]
         clut = toarray(grade.crop((0, h - 4096, 4096, h))).flatten()
-        for fn in sources:
+        for i,fn in enumerate(sources):
+            print "%d/%d %s" % (i + 1, len(sources), fn)
             pic = toarray(Image.open(fn))
             toimage(clut[pic]).save(fn, quality = 99)
         os.rename("grade.png", "used-grade.png")
